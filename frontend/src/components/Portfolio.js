@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Chip, Card, CardContent, Link, Drawer, List, ListItem, ListItemIcon, ListItemText, Fab, Grid } from '@mui/material';
+import { Container, Typography, Box, Chip, Card, CardContent, Link, Drawer, List, ListItem, ListItemIcon, ListItemText, Fab } from '@mui/material';
 import { motion } from 'framer-motion';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -16,7 +16,7 @@ function Portfolio({ token, onLogout }) {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/users/profile', {
+        const response = await fetch('/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
@@ -78,7 +78,7 @@ function Portfolio({ token, onLogout }) {
             if (response.ok) {
               const data = await response.json();
               const link = document.createElement('a');
-              link.href = `http://localhost:5000${data.url}`;
+              link.href = data.url;
               link.download = `${profile.name || 'Portfolio'}.pdf`;
               link.click();
             } else {
@@ -206,7 +206,7 @@ function Portfolio({ token, onLogout }) {
         ))}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, position: 'relative', zIndex: 1, mb: 2 }}>
           {profile.profilePicture && (
-            <img src={`http://localhost:5000/${profile.profilePicture}`} alt="Profile" style={{ width: 150, height: 150, borderRadius: '50%', border: '5px solid white' }} />
+            <img src={`/${profile.profilePicture}`} alt="Profile" style={{ width: 150, height: 150, borderRadius: '50%', border: '5px solid white' }} />
           )}
           <Typography variant="h1" component="h1" sx={{
             fontWeight: 300,
@@ -252,72 +252,66 @@ function Portfolio({ token, onLogout }) {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <Box sx={{ marginBottom: 6, background: '#f9f9f9', padding: 3, borderRadius: 2, boxShadow: 1, transition: 'transform 0.3s', '&:hover': { transform: 'translateY(-5px)' } }}>
-              <Typography variant="h4" sx={{ color: themeColor, borderBottom: '3px solid #ffeb3b', paddingBottom: 1, marginBottom: 2 }}>
-                Skills
+            <Box sx={{ marginBottom: 6, background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', padding: 4, borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', border: '1px solid #dee2e6' }}>
+              <Typography variant="h4" sx={{ color: themeColor, textAlign: 'center', marginBottom: 3, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 }}>
+                Skills & Expertise
               </Typography>
-              <Grid container spacing={2}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {profile.skills.language?.length > 0 && (
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1, background: '#f9f9f9' }}>
-                      <Typography variant="h6" sx={{ color: themeColor, fontWeight: 'bold', mb: 1 }}>Language Skills</Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-start' }}>
-                        {profile.skills.language.map((skill, index) => (
-                          <motion.div
-                            key={`lang-${index}`}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4, delay: index * 0.1 }}
-                            viewport={{ once: true }}
-                          >
-                            <Chip label={skill} sx={{ background: themeColor, color: 'white', transition: 'all 0.3s', '&:hover': { background: `${themeColor}cc`, transform: 'scale(1.05)' } }} />
-                          </motion.div>
-                        ))}
-                      </Box>
+                  <Box sx={{ background: 'white', p: 3, borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: `4px solid ${themeColor}` }}>
+                    <Typography variant="h6" sx={{ color: themeColor, fontWeight: 'bold', mb: 2, textAlign: 'center' }}>Language Skills</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center' }}>
+                      {profile.skills.language.map((skill, index) => (
+                        <motion.div
+                          key={`lang-${index}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.4, delay: index * 0.1 }}
+                          viewport={{ once: true }}
+                        >
+                          <Chip label={skill} sx={{ background: `linear-gradient(45deg, ${themeColor}, ${themeColor}dd)`, color: 'white', fontWeight: 'medium', fontSize: '0.9rem', padding: '8px 12px', transition: 'all 0.3s', '&:hover': { background: `linear-gradient(45deg, ${themeColor}cc, ${themeColor}aa)`, transform: 'scale(1.1)', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' } }} />
+                        </motion.div>
+                      ))}
                     </Box>
-                  </Grid>
+                  </Box>
                 )}
                 {profile.skills.programming?.length > 0 && (
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1, background: '#f9f9f9' }}>
-                      <Typography variant="h6" sx={{ color: themeColor, fontWeight: 'bold', mb: 1 }}>Programming Skills</Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-start' }}>
-                        {profile.skills.programming.map((skill, index) => (
-                          <motion.div
-                            key={`prog-${index}`}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4, delay: index * 0.1 }}
-                            viewport={{ once: true }}
-                          >
-                            <Chip label={skill} sx={{ background: '#4caf50', color: 'white', transition: 'all 0.3s', '&:hover': { background: '#388e3c', transform: 'scale(1.05)' } }} />
-                          </motion.div>
-                        ))}
-                      </Box>
+                  <Box sx={{ background: 'white', p: 3, borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: `4px solid #27ae60` }}>
+                    <Typography variant="h6" sx={{ color: '#27ae60', fontWeight: 'bold', mb: 2, textAlign: 'center' }}>Programming Skills</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center' }}>
+                      {profile.skills.programming.map((skill, index) => (
+                        <motion.div
+                          key={`prog-${index}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.4, delay: index * 0.1 }}
+                          viewport={{ once: true }}
+                        >
+                          <Chip label={skill} sx={{ background: 'linear-gradient(45deg, #27ae60, #2ecc71)', color: 'white', fontWeight: 'medium', fontSize: '0.9rem', padding: '8px 12px', transition: 'all 0.3s', '&:hover': { background: 'linear-gradient(45deg, #229954, #27ae60)', transform: 'scale(1.1)', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' } }} />
+                        </motion.div>
+                      ))}
                     </Box>
-                  </Grid>
+                  </Box>
                 )}
                 {profile.skills.other?.length > 0 && (
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1, background: '#f9f9f9' }}>
-                      <Typography variant="h6" sx={{ color: themeColor, fontWeight: 'bold', mb: 1 }}>Other Skills</Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'flex-start' }}>
-                        {profile.skills.other.map((skill, index) => (
-                          <motion.div
-                            key={`other-${index}`}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4, delay: index * 0.1 }}
-                            viewport={{ once: true }}
-                          >
-                            <Chip label={skill} sx={{ background: '#4caf50', color: 'white', transition: 'all 0.3s', '&:hover': { background: '#388e3c', transform: 'scale(1.05)' } }} />
-                          </motion.div>
-                        ))}
-                      </Box>
+                  <Box sx={{ background: 'white', p: 3, borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: `4px solid #e67e22` }}>
+                    <Typography variant="h6" sx={{ color: '#e67e22', fontWeight: 'bold', mb: 2, textAlign: 'center' }}>Other Skills</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center' }}>
+                      {profile.skills.other.map((skill, index) => (
+                        <motion.div
+                          key={`other-${index}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.4, delay: index * 0.1 }}
+                          viewport={{ once: true }}
+                        >
+                          <Chip label={skill} sx={{ background: 'linear-gradient(45deg, #e67e22, #f39c12)', color: 'white', fontWeight: 'medium', fontSize: '0.9rem', padding: '8px 12px', transition: 'all 0.3s', '&:hover': { background: 'linear-gradient(45deg, #d35400, #e67e22)', transform: 'scale(1.1)', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' } }} />
+                        </motion.div>
+                      ))}
                     </Box>
-                  </Grid>
+                  </Box>
                 )}
-              </Grid>
+              </Box>
             </Box>
           </motion.div>
         )}

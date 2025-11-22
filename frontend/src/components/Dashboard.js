@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Container,
   Typography,
@@ -7,9 +8,6 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
-  AppBar,
-  Toolbar,
   Drawer,
   List,
   ListItem,
@@ -26,9 +24,7 @@ import {
 } from '@mui/material';
 import WorkIcon from '@mui/icons-material/Work';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import Description from '@mui/icons-material/Description';
 import Web from '@mui/icons-material/Web';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import MenuIcon from '@mui/icons-material/Menu';
 
 const skillOptions = {
@@ -53,7 +49,6 @@ const educationLevels = [
 function Dashboard({ token, onLogout }) {
   const navigate = useNavigate();
   const [profile, setProfile] = useState({});
-  const [cvFile, setCvFile] = useState(null);
   const [selectedSection, setSelectedSection] = useState('profile');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [user, setUser] = useState({ username: '', email: '', password: '' });
@@ -83,6 +78,12 @@ function Dashboard({ token, onLogout }) {
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
+
+  useEffect(() => {
+    if (profile.name) {
+      setPortfolioData({ ...profile });
+    }
+  }, [profile]);
 
   const handleProfileChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -119,7 +120,7 @@ function Dashboard({ token, onLogout }) {
         ...portfolioData,
         experience: portfolioData.experience.filter(exp => exp.title.trim() || exp.company.trim() || exp.description.trim()),
         education: portfolioData.education.filter(edu => edu.degree.trim() || edu.institution.trim()),
-        contact: (portfolioData.contact.phone.trim() || portfolioData.contact.email.trim() || portfolioData.contact.linkedin.trim() || portfolioData.contact.github.trim()) ? portfolioData.contact : null
+        contact: (portfolioData.contact?.phone?.trim() || portfolioData.contact?.email?.trim() || portfolioData.contact?.linkedin?.trim() || portfolioData.contact?.github?.trim()) ? portfolioData.contact : null
       };
 
       let body;
@@ -133,7 +134,7 @@ function Dashboard({ token, onLogout }) {
         headers['Content-Type'] = 'application/json';
         body = JSON.stringify(cleanedData);
       }
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch('/api/users/profile', {
         method: 'PUT',
         headers,
         body,
@@ -154,31 +155,6 @@ function Dashboard({ token, onLogout }) {
     }
   };
 
-  const handleCvUpload = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('cv', cvFile);
-    const response = await fetch('http://localhost:5000/api/users/upload-cv', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-    if (response.ok) {
-      alert('CV uploaded and parsed');
-      fetchProfile();
-    }
-  };
-
-  const generatePortfolio = async () => {
-    const response = await fetch('http://localhost:5000/api/portfolios/generate', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (response.ok) {
-      const data = await response.json();
-      alert(`Portfolio generated: http://localhost:5000${data.url}`);
-    }
-  };
 
 
   const renderContent = () => {
@@ -196,73 +172,564 @@ function Dashboard({ token, onLogout }) {
         );
       case 'profile':
         return (
-          <Container maxWidth="lg" className="py-8">
-            <Card className="shadow-lg" sx={{ background: '#f9f9f9' }}>
-              <CardContent>
-                <Typography variant="h5" component="div" className="mb-4">
-                  User Information
-                </Typography>
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  name="username"
-                  label="Username"
-                  value={user.username}
-                  onChange={handleUserChange}
-                  sx={{ '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4caf50' } }}
-                />
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  name="email"
-                  label="Email"
-                  value={user.email}
-                  onChange={handleUserChange}
-                  sx={{ '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4caf50' } }}
-                />
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  name="password"
-                  label="New Password (leave empty to keep current)"
-                  type="password"
-                  value={user.password}
-                  onChange={handleUserChange}
-                  sx={{ '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4caf50' } }}
-                />
-                <Typography variant="h5" component="div" className="mb-4 mt-6">
-                  Profile Information
-                </Typography>
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  name="name"
-                  label="Name"
-                  value={profile.name || ''}
-                  onChange={handleProfileChange}
-                  sx={{ '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4caf50' } }}
-                />
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  name="bio"
-                  label="Bio"
-                  multiline
-                  rows={4}
-                  value={profile.bio || ''}
-                  onChange={handleProfileChange}
-                  sx={{ '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4caf50' } }}
-                />
-                <Button
-                  variant="contained"
-                  sx={{ backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#388e3c' }, mt: 3 }}
-                  onClick={updateProfile}
-                >
-                  Update Profile
-                </Button>
-              </CardContent>
-            </Card>
-          </Container>
+          <Box sx={{
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+            py: 4
+          }}>
+            {/* Animated background elements */}
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  width: `${Math.random() * 80 + 40}px`,
+                  height: `${Math.random() * 80 + 40}px`,
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  y: [0, -20, 0],
+                  x: [0, Math.random() * 15 - 7.5, 0],
+                  scale: [1, 1.05, 1],
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 3,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: Math.random() * 2,
+                }}
+              />
+            ))}
+
+            <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              >
+                <Card sx={{
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(15px)',
+                  borderRadius: 4,
+                  boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  overflow: 'hidden'
+                }}>
+                  <Box sx={{
+                    background: 'linear-gradient(135deg, #4caf50, #66bb6a)',
+                    color: 'white',
+                    p: 3,
+                    textAlign: 'center'
+                  }}>
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                    >
+                      <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        User Profile
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        Manage your account and portfolio information
+                      </Typography>
+                    </motion.div>
+                  </Box>
+
+                  <CardContent sx={{ p: 4 }}>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.6, delay: 0.4 }}
+                    >
+                      <Typography variant="h6" sx={{ color: '#2e7d32', fontWeight: 'bold', mb: 3, textAlign: 'center' }}>
+                        Account Details
+                      </Typography>
+                    </motion.div>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
+                      <motion.div
+                        initial={{ x: -30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Username"
+                          name="username"
+                          value={user.username}
+                          onChange={handleUserChange}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ x: -30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.8 }}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Email"
+                          name="email"
+                          value={user.email}
+                          onChange={handleUserChange}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ x: -30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 1.0 }}
+                      >
+                        <TextField
+                          fullWidth
+                          label="New Password (leave empty to keep current)"
+                          name="password"
+                          type="password"
+                          value={user.password}
+                          onChange={handleUserChange}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </motion.div>
+                    </Box>
+
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.6, delay: 1.2 }}
+                    >
+                      <Typography variant="h6" sx={{ color: '#2e7d32', fontWeight: 'bold', mb: 3, textAlign: 'center' }}>
+                        Portfolio Information
+                      </Typography>
+                    </motion.div>
+
+                    {/* Profile Picture Upload/Display */}
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.6, delay: 1.3 }}
+                      style={{ textAlign: 'center', marginBottom: '20px' }}
+                    >
+                      <Box sx={{ display: 'inline-block', p: 2, borderRadius: 2, background: 'rgba(76, 175, 80, 0.1)' }}>
+                        <Typography variant="subtitle2" sx={{ mb: 1, color: '#2e7d32' }}>Profile Picture</Typography>
+                        {profile.profilePicture && (
+                          <img
+                            src={`/${profile.profilePicture}`}
+                            alt="Profile"
+                            style={{
+                              width: '100px',
+                              height: '100px',
+                              borderRadius: '50%',
+                              border: '3px solid #4caf50',
+                              objectFit: 'cover',
+                              marginBottom: '10px'
+                            }}
+                          />
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setPortfolioData({ ...portfolioData, profilePicture: e.target.files[0] })}
+                          style={{ display: 'block', margin: '0 auto' }}
+                        />
+                      </Box>
+                    </motion.div>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
+                      <motion.div
+                        initial={{ x: 30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 1.4 }}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Full Name"
+                          value={portfolioData.name || ''}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, name: e.target.value })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ x: 30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 1.5 }}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Position/Title"
+                          value={portfolioData.position || ''}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, position: e.target.value })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ x: 30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 1.6 }}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Bio"
+                          multiline
+                          rows={4}
+                          value={portfolioData.bio || ''}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, bio: e.target.value })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ x: 30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 1.7 }}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Theme Color"
+                          type="color"
+                          value={portfolioData.themeColor || '#4caf50'}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, themeColor: e.target.value })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </motion.div>
+                    </Box>
+
+                    {/* Skills Editing */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 1.8 }}
+                    >
+                      <Typography variant="subtitle1" sx={{ color: '#2e7d32', fontWeight: 'bold', mb: 2 }}>
+                        Skills
+                      </Typography>
+                      <Box sx={{ pl: 2, mb: 3 }}>
+                        <Autocomplete
+                          multiple
+                          options={skillOptions.language}
+                          value={portfolioData.skills?.language || []}
+                          onChange={(event, newValue) => setPortfolioData({ ...portfolioData, skills: { ...portfolioData.skills, language: newValue } })}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Language Skills"
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  background: 'rgba(76, 175, 80, 0.05)',
+                                  '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                                  '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                                }
+                              }}
+                            />
+                          )}
+                          sx={{ mb: 2 }}
+                        />
+                        <Autocomplete
+                          multiple
+                          options={skillOptions.programming}
+                          value={portfolioData.skills?.programming || []}
+                          onChange={(event, newValue) => setPortfolioData({ ...portfolioData, skills: { ...portfolioData.skills, programming: newValue } })}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Programming Skills"
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  background: 'rgba(76, 175, 80, 0.05)',
+                                  '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                                  '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                                }
+                              }}
+                            />
+                          )}
+                          sx={{ mb: 2 }}
+                        />
+                        <Autocomplete
+                          multiple
+                          options={skillOptions.other}
+                          value={portfolioData.skills?.other || []}
+                          onChange={(event, newValue) => setPortfolioData({ ...portfolioData, skills: { ...portfolioData.skills, other: newValue } })}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Other Skills"
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  background: 'rgba(76, 175, 80, 0.05)',
+                                  '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                                  '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                                }
+                              }}
+                            />
+                          )}
+                        />
+                      </Box>
+                    </motion.div>
+
+                    {/* Contact Editing */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 1.9 }}
+                    >
+                      <Typography variant="subtitle1" sx={{ color: '#2e7d32', fontWeight: 'bold', mb: 2 }}>
+                        Contact Information
+                      </Typography>
+                      <Box sx={{ pl: 2, mb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField
+                          fullWidth
+                          label="Phone"
+                          value={portfolioData.contact?.phone || ''}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, contact: { ...portfolioData.contact, phone: e.target.value } })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                        <TextField
+                          fullWidth
+                          label="Email"
+                          value={portfolioData.contact?.email || ''}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, contact: { ...portfolioData.contact, email: e.target.value } })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                        <TextField
+                          fullWidth
+                          label="LinkedIn"
+                          value={portfolioData.contact?.linkedin || ''}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, contact: { ...portfolioData.contact, linkedin: e.target.value } })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                        <TextField
+                          fullWidth
+                          label="GitHub"
+                          value={portfolioData.contact?.github || ''}
+                          onChange={(e) => setPortfolioData({ ...portfolioData, contact: { ...portfolioData.contact, github: e.target.value } })}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(76, 175, 80, 0.05)',
+                              '&:hover': { background: 'rgba(76, 175, 80, 0.1)' },
+                              '&.Mui-focused': { background: 'rgba(76, 175, 80, 0.05)' }
+                            }
+                          }}
+                        />
+                      </Box>
+                    </motion.div>
+
+                    {/* Experience Editing */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 1.9 }}
+                    >
+                      <Typography variant="subtitle1" sx={{ color: '#2e7d32', fontWeight: 'bold', mb: 2 }}>
+                        Experience
+                      </Typography>
+                      {portfolioData.experience.map((exp, idx) => (
+                        <Box key={idx} sx={{ mb: 2, p: 2, background: 'rgba(76, 175, 80, 0.05)', borderRadius: 1, border: '1px solid rgba(76, 175, 80, 0.1)' }}>
+                          <TextField
+                            label="Job Title"
+                            value={exp.title}
+                            onChange={(e) => updateExperience(idx, 'title', e.target.value)}
+                            sx={{ mr: 1, mb: 1, width: '48%' }}
+                          />
+                          <TextField
+                            label="Company"
+                            value={exp.company}
+                            onChange={(e) => updateExperience(idx, 'company', e.target.value)}
+                            sx={{ mr: 1, mb: 1, width: '48%' }}
+                          />
+                          <TextField
+                            label="Duration"
+                            value={exp.duration}
+                            onChange={(e) => updateExperience(idx, 'duration', e.target.value)}
+                            sx={{ mr: 1, mb: 1, width: '48%' }}
+                          />
+                          <TextField
+                            label="Description"
+                            multiline
+                            rows={2}
+                            value={exp.description}
+                            onChange={(e) => updateExperience(idx, 'description', e.target.value)}
+                            sx={{ width: '100%' }}
+                          />
+                        </Box>
+                      ))}
+                      <Button
+                        variant="outlined"
+                        onClick={addExperience}
+                        sx={{ mb: 3, color: '#4caf50', borderColor: '#4caf50', '&:hover': { borderColor: '#388e3c', color: '#388e3c' } }}
+                      >
+                        Add Experience
+                      </Button>
+                    </motion.div>
+
+                    {/* Education Editing */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 2.0 }}
+                    >
+                      <Typography variant="subtitle1" sx={{ color: '#2e7d32', fontWeight: 'bold', mb: 2 }}>
+                        Education
+                      </Typography>
+                      {portfolioData.education.map((edu, idx) => (
+                        <Box key={idx} sx={{ mb: 2, p: 2, background: 'rgba(76, 175, 80, 0.05)', borderRadius: 1, border: '1px solid rgba(76, 175, 80, 0.1)' }}>
+                          <FormControl fullWidth margin="normal">
+                            <InputLabel>Education Level</InputLabel>
+                            <Select
+                              value={edu.level}
+                              onChange={(e) => updateEducation(idx, 'level', e.target.value)}
+                              sx={{ mb: 1 }}
+                            >
+                              {educationLevels.map((level) => (
+                                <MenuItem key={level} value={level}>
+                                  {level}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <TextField
+                            label="Program"
+                            value={edu.degree}
+                            onChange={(e) => updateEducation(idx, 'degree', e.target.value)}
+                            sx={{ mr: 1, mb: 1, width: '48%' }}
+                          />
+                          <TextField
+                            label="Institution"
+                            value={edu.institution}
+                            onChange={(e) => updateEducation(idx, 'institution', e.target.value)}
+                            sx={{ mr: 1, mb: 1, width: '48%' }}
+                          />
+                          <TextField
+                            label="Start Date"
+                            type="date"
+                            InputLabelProps={{ shrink: true }}
+                            value={edu.startDate}
+                            onChange={(e) => updateEducation(idx, 'startDate', e.target.value)}
+                            sx={{ mr: 1, mb: 1, width: '48%' }}
+                          />
+                          <TextField
+                            label="End Date"
+                            type="date"
+                            InputLabelProps={{ shrink: true }}
+                            value={edu.endDate}
+                            onChange={(e) => updateEducation(idx, 'endDate', e.target.value)}
+                            sx={{ width: '48%' }}
+                          />
+                        </Box>
+                      ))}
+                      <Button
+                        variant="outlined"
+                        onClick={addEducation}
+                        sx={{ mb: 3, color: '#4caf50', borderColor: '#4caf50', '&:hover': { borderColor: '#388e3c', color: '#388e3c' } }}
+                      >
+                        Add Education
+                      </Button>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ y: 30, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ duration: 0.6, delay: 1.8 }}
+                    >
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Button
+                          variant="contained"
+                          size="large"
+                          onClick={updateProfile}
+                          sx={{
+                            background: 'linear-gradient(45deg, #4caf50, #66bb6a)',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            px: 6,
+                            py: 1.5,
+                            borderRadius: 3,
+                            '&:hover': {
+                              background: 'linear-gradient(45deg, #388e3c, #4caf50)',
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 10px 25px rgba(76, 175, 80, 0.3)'
+                            },
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          Update Profile
+                        </Button>
+                      </Box>
+                    </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Container>
+          </Box>
         );
       case 'new-portfolio':
         return (
