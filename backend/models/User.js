@@ -4,10 +4,18 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  googleId: { type: String, unique: true, sparse: true },
   profile: {
     name: String,
+    position: String,
     bio: String,
-    skills: [String],
+    profilePicture: String,
+    themeColor: { type: String, default: '#4caf50' },
+    skills: {
+      language: [String],
+      programming: [String],
+      other: [String]
+    },
     experience: [{
       title: String,
       company: String,
@@ -15,9 +23,11 @@ const userSchema = new mongoose.Schema({
       description: String
     }],
     education: [{
+      level: String,
       degree: String,
       institution: String,
-      year: String
+      startDate: String,
+      endDate: String
     }],
     projects: [{
       title: String,
@@ -26,6 +36,7 @@ const userSchema = new mongoose.Schema({
     }],
     contact: {
       phone: String,
+      email: String,
       linkedin: String,
       github: String
     }

@@ -3,63 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= profile.name %> - Portfolio</title>
+    <title><%= profile.name || 'Portfolio' %> - MyPortfolio</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; background: white; }
-        h1 { color: #333; }
-        .section { margin-bottom: 20px; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin-bottom: 10px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: #000000;
+        }
+        .header {
+            background: linear-gradient(135deg, #4caf50, #81c784);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 3em;
+            font-weight: 300;
+        }
+        .header p {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .section {
+            margin-bottom: 60px;
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #4caf50;
+            border-bottom: 3px solid #ffeb3b;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .skill {
+            background: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .experience-item, .education-item, .project-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-left: 5px solid #ff9800;
+            border-radius: 4px;
+        }
+        .contact {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .contact-item {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .contact-item a {
+            color: #4caf50;
+            text-decoration: none;
+        }
+        .contact-item a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            background: #000000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        .footer p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1><%= profile.name || 'Your Name' %></h1>
+        <p><%= profile.bio || 'Your professional bio goes here' %></p>
+    </div>
     <div class="container">
-        <h1><%= profile.name %></h1>
-        <p><%= profile.bio %></p>
-        
+        <% if (profile.skills && profile.skills.length > 0) { %>
         <div class="section">
             <h2>Skills</h2>
-            <ul>
+            <div class="skills">
                 <% profile.skills.forEach(skill => { %>
-                    <li><%= skill %></li>
+                    <span class="skill"><%= skill %></span>
                 <% }) %>
-            </ul>
+            </div>
         </div>
-        
+        <% } %>
+
+        <% if (profile.experience && profile.experience.length > 0) { %>
         <div class="section">
             <h2>Experience</h2>
-            <ul>
-                <% profile.experience.forEach(exp => { %>
-                    <li><strong><%= exp.title %></strong> at <%= exp.company %> (<%= exp.duration %>)<br><%= exp.description %></li>
-                <% }) %>
-            </ul>
+            <% profile.experience.forEach(exp => { %>
+                <div class="experience-item">
+                    <h3><%= exp.title %> at <%= exp.company %></h3>
+                    <p><strong>Duration:</strong> <%= exp.duration %></p>
+                    <p><%= exp.description %></p>
+                </div>
+            <% }) %>
         </div>
-        
+        <% } %>
+
+        <% if (profile.education && profile.education.length > 0) { %>
         <div class="section">
             <h2>Education</h2>
-            <ul>
-                <% profile.education.forEach(edu => { %>
-                    <li><%= edu.degree %> from <%= edu.institution %> (<%= edu.year %>)</li>
-                <% }) %>
-            </ul>
+            <% profile.education.forEach(edu => { %>
+                <div class="education-item">
+                    <h3><%= edu.degree %></h3>
+                    <p><%= edu.institution %> - <%= edu.year %></p>
+                </div>
+            <% }) %>
         </div>
-        
+        <% } %>
+
+        <% if (profile.projects && profile.projects.length > 0) { %>
         <div class="section">
             <h2>Projects</h2>
-            <ul>
-                <% profile.projects.forEach(proj => { %>
-                    <li><a href="<%= proj.link %>"><%= proj.title %></a><br><%= proj.description %></li>
-                <% }) %>
-            </ul>
+            <% profile.projects.forEach(proj => { %>
+                <div class="project-item">
+                    <h3><a href="<%= proj.link %>" target="_blank"><%= proj.title %></a></h3>
+                    <p><%= proj.description %></p>
+                </div>
+            <% }) %>
         </div>
-        
+        <% } %>
+
+        <% if (profile.contact) { %>
         <div class="section">
             <h2>Contact</h2>
-            <p>Phone: <%= profile.contact.phone %></p>
-            <p>LinkedIn: <a href="<%= profile.contact.linkedin %>"><%= profile.contact.linkedin %></a></p>
-            <p>GitHub: <a href="<%= profile.contact.github %>"><%= profile.contact.github %></a></p>
+            <div class="contact">
+                <% if (profile.contact.phone) { %>
+                <div class="contact-item">
+                    <h3>Phone</h3>
+                    <p><%= profile.contact.phone %></p>
+                </div>
+                <% } %>
+                <% if (profile.contact.linkedin) { %>
+                <div class="contact-item">
+                    <h3>LinkedIn</h3>
+                    <p><a href="<%= profile.contact.linkedin %>" target="_blank"><%= profile.contact.linkedin %></a></p>
+                </div>
+                <% } %>
+                <% if (profile.contact.github) { %>
+                <div class="contact-item">
+                    <h3>GitHub</h3>
+                    <p><a href="<%= profile.contact.github %>" target="_blank"><%= profile.contact.github %></a></p>
+                </div>
+                <% } %>
+            </div>
         </div>
+        <% } %>
+    </div>
+    <div class="footer">
+        <p>&copy; 2024 MyPortfolio. Built with passion.</p>
     </div>
 </body>
 </html>

@@ -1,3 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@config {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'];
+}
+
 .App {
   text-align: center;
 }

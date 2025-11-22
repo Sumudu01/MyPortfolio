@@ -2,6 +2,7 @@ const express = require('express');
 const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
+const puppeteer = require('puppeteer');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
@@ -14,12 +15,19 @@ router.post('/generate', auth, async (req, res) => {
     const templatePath = path.join(__dirname, '../templates/portfolio.ejs');
     const outputDir = path.join(__dirname, '../public/portfolios');
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-    const outputPath = path.join(outputDir, `${user.username}.html`);
+    const outputPath = path.join(outputDir, `${user.username}.pdf`);
 
     const html = await ejs.renderFile(templatePath, { profile: user.profile });
-    fs.writeFileSync(outputPath, html);
 
-    user.portfolioUrl = `/portfolios/${user.username}.html`;
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(html);
+    const pdf = await page.pdf({ format: 'A4' });
+    await browser.close();
+
+    fs.writeFileSync(outputPath, pdf);
+
+    user.portfolioUrl = `/portfolios/${user.username}`;
     await user.save();
 
     res.json({ message: 'Portfolio generated', url: user.portfolioUrl });
@@ -30,7 +38,7 @@ router.post('/generate', auth, async (req, res) => {
 
 // Get portfolio
 router.get('/:username', (req, res) => {
-  const filePath = path.join(__dirname, '../public/portfolios', `${req.params.username}.html`);
+  const filePath = path.join(__dirname, '../public/portfolios', `${req.params.username}.pdf`);
   if (fs.existsSync(filePath)) {
     res.sendFile(filePath);
   } else {
