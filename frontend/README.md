@@ -1,6 +1,15 @@
-# Getting Started with Create React App
+# MyPortfolio Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The React frontend for the MyPortfolio Builder application. This is a single-page application built with Create React App, providing an intuitive interface for users to create and manage their professional portfolios.
+
+## Features
+
+- User authentication (login/register with Google OAuth)
+- Dashboard for editing profile information
+- Live portfolio preview
+- PDF download functionality
+- Responsive design with Material-UI
+- Smooth animations with Framer Motion
 
 ## Available Scripts
 

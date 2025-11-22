@@ -40,6 +40,7 @@ router.post('/generate', auth, async (req, res) => {
 router.get('/:username', (req, res) => {
   const filePath = path.join(__dirname, '../public/portfolios', `${req.params.username}.pdf`);
   if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Disposition', `attachment; filename="${req.params.username}.pdf"`);
     res.sendFile(filePath);
   } else {
     res.status(404).json({ error: 'Portfolio not found' });

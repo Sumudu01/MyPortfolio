@@ -71,7 +71,7 @@ function Portfolio({ token, onLogout }) {
         }}
         onClick={async () => {
           try {
-            const response = await fetch('http://localhost:5000/api/portfolios/generate', {
+            const response = await fetch('http://localhost:5000/portfolios/generate', {
               method: 'POST',
               headers: { Authorization: `Bearer ${token}` },
             });
