@@ -82,7 +82,8 @@ function Portfolio({ token, onLogout }) {
               link.download = `${profile.name || 'Portfolio'}.pdf`;
               link.click();
             } else {
-              alert('Failed to generate PDF');
+              const errorData = await response.json().catch(() => ({}));
+              alert('Failed to generate PDF: ' + (errorData.error || 'Unknown error'));
             }
           } catch (error) {
             alert('Error generating PDF');

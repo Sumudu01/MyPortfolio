@@ -142,7 +142,7 @@
 <body>
     <div class="header">
         <% if (profile.profilePicture) { %>
-            <img src="http://localhost:5000<%= profile.profilePicture %>" alt="Profile Photo" class="profile-photo">
+            <img src="http://localhost:5000/<%= profile.profilePicture %>" alt="Profile Photo" class="profile-photo">
         <% } %>
         <h1><%= profile.name || 'Your Name' %></h1>
         <% if (profile.position) { %>

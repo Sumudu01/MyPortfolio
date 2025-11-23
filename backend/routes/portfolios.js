@@ -27,7 +27,7 @@ router.post('/generate', auth, async (req, res) => {
 
     fs.writeFileSync(outputPath, pdf);
 
-    user.portfolioUrl = `/portfolios/${user.username}`;
+    user.portfolioUrl = `http://localhost:5000/portfolios/${user.username}`;
     await user.save();
 
     res.json({ message: 'Portfolio generated', url: user.portfolioUrl });

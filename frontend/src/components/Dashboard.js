@@ -173,41 +173,12 @@ function Dashboard({ token, onLogout }) {
       case 'profile':
         return (
           <Box sx={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
-            overflow: 'hidden',
             py: 4
           }}>
-            {/* Animated background elements */}
-            {[...Array(15)].map((_, i) => (
-              <motion.div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  width: `${Math.random() * 80 + 40}px`,
-                  height: `${Math.random() * 80 + 40}px`,
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '50%',
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  x: [0, Math.random() * 15 - 7.5, 0],
-                  scale: [1, 1.05, 1],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 3,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: Math.random() * 2,
-                }}
-              />
-            ))}
 
             <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
               <motion.div
@@ -733,8 +704,15 @@ function Dashboard({ token, onLogout }) {
         );
       case 'new-portfolio':
         return (
-          <Container maxWidth="lg" className="py-8">
-            <Card className="shadow-lg" sx={{ background: '#f9f9f9' }}>
+          <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Card sx={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(15px)',
+              borderRadius: 4,
+              boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              overflow: 'hidden'
+            }}>
               <CardContent>
                 <Typography variant="h5" component="div" className="mb-4">
                   Create Your Portfolio
@@ -1133,7 +1111,34 @@ function Dashboard({ token, onLogout }) {
           </List>
         </Box>
       </Drawer>
-      <Box sx={{ background: 'linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)', minHeight: '100vh', padding: 3 }}>
+         {/* Animated background elements */}
+         {[...Array(15)].map((_, i) => (
+           <motion.div
+             key={i}
+             style={{
+               position: 'absolute',
+               width: `${Math.random() * 60 + 20}px`,
+               height: `${Math.random() * 60 + 20}px`,
+               background: 'rgba(255, 255, 255, 0.4)',
+               borderRadius: '50%',
+               top: `${Math.random() * 100}%`,
+               left: `${Math.random() * 100}%`,
+             }}
+             animate={{
+               y: [0, -40, 0],
+               x: [0, Math.random() * 10 - 5, 0],
+               scale: [0.8, 1.2, 0.8],
+               opacity: [0.4, 0.7, 0.4],
+             }}
+             transition={{
+               duration: 5 + Math.random() * 3,
+               repeat: Infinity,
+               ease: 'easeInOut',
+               delay: Math.random() * 2,
+             }}
+           />
+         ))}
+      <Box sx={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', minHeight: '100vh', padding: 3, position: 'relative', overflow: 'hidden' }}>
         <Container maxWidth="lg" sx={{ py: 4 }}>
           {renderContent()}
         </Container>
