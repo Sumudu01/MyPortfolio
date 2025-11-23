@@ -65,13 +65,19 @@ function Dashboard({ token, onLogout }) {
   });
 
   const fetchProfile = useCallback(async () => {
-    const response = await fetch('http://localhost:5000/api/users/profile', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (response.ok) {
-      const data = await response.json();
-      setProfile(data?.profile || {});
-      setUser({ username: data.username, email: data.email, password: '' });
+    try {
+      const response = await fetch('/api/users/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setProfile(data?.profile || {});
+        setUser({ username: data.username, email: data.email, password: '' });
+      } else {
+        console.error('Failed to fetch profile:', response.status);
+      }
+    } catch (error) {
+      console.error('Network error fetching profile:', error);
     }
   }, [token]);
 

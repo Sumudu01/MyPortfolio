@@ -225,7 +225,7 @@ function Login({ onLogin, onSwitchToRegister }) {
                       },
                       transition: 'all 0.3s ease'
                     }}
-                    onClick={() => window.location.href = '/api/auth/google'}
+                    onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'}
                   >
                     Sign In with Google
                   </Button>
